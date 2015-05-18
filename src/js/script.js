@@ -1,9 +1,14 @@
 // New class to create a Go Game
 function GoGame (size) {
+
+
 	this.size = size; //the size of the board
 	this.board; //we create a new empty board
 	this.currentPlayer = 'black';
 	this.oppositePlayer;
+	this.chains = new Array(); // an array that countains the chains on the board.
+
+
 	this.create = function() {
 		var m = new Array();
 		for (var i = 0; i < this.size; i++) {
@@ -34,7 +39,8 @@ function GoGame (size) {
 			if(!td.hasClass('black') && !td.hasClass('white')) {
 				td.removeClass().addClass(this.currentPlayer);
 				this.board[x][y] = this.currentPlayer;
-				this.checkNeighbors(x,y);
+				this.checkChain(x,y);
+				// this.checkNeighbors(x,y);
 				this.switchPlayers();
 			}
 
@@ -86,6 +92,62 @@ function GoGame (size) {
 		}
 		else {
 			this.currentPlayer = 'black';
+		}
+	}
+
+	this.checkChain = function(x,y) {
+		x = parseInt(x);
+		y = parseInt(y);
+		var notAlone = false;
+		if (this.board[x-1][y] == this.currentPlayer) {
+			this.addChain(x,y,x-1,y);
+			notAlone = true;
+		}
+		if (this.board[x+1][y] == this.currentPlayer) {
+			this.addChain(x,y,x+1,y);
+			notAlone = true;
+		}
+		if (this.board[x][y-1] == this.currentPlayer) {
+			this.addChain(x,y,x,y-1);
+			notAlone = true;
+		}
+		if (this.board[x][y+1] == this.currentPlayer) {
+			this.addChain(x,y,x,y+1);
+			notAlone = true;
+		}
+		if(notAlone == false) {
+			this.addChain(x,y,-1,-1);
+		}
+	}
+
+	this.addChain = function(x,y,otherX,otherY) {
+		// console.log(x+' '+y+' '+otherX+' '+otherY);
+		if (otherX == -1 && otherY == -1) {
+			//We create a new object that we add to the array that countains all of our chains.
+			this.chains.push({
+				"color" : this.currentPlayer,
+				1 : {
+					"x" : x,
+					"y" : y
+				}
+			});
+		}
+		else {
+			for (var i = 0; i < this.chains.length; i++) {
+				for (var key in this.chains[i]) {
+				  if (this.chains[i].hasOwnProperty(key)) {
+				  	// console.log(this.chains[i][key].x + ' ' + otherX);
+				  	// console.log(this.chains[i][key].y + ' ' + otherY);
+				  	if (this.chains[i][key].x == otherX && this.chains[i][key].y == otherY) {
+				  		this.chains[i][key+1] = {
+				  			"x" : x,
+				  			"y" : y
+				  		}
+				  		console.log("success");
+				  	}
+				  }
+				}
+			}
 		}
 	}
 }
