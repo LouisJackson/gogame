@@ -96,36 +96,35 @@ function GoGame (size) {
 	}
 
 	this.checkChain = function(x,y) {
+
 		x = parseInt(x);
 		y = parseInt(y);
-		var notAlone = false;
+
+		var others = new Array();
+
 		if (this.board[x-1][y] == this.currentPlayer) {
-			this.addChain(x,y,x-1,y);
-			notAlone = true;
+			others.push(x-1,y);
 		}
 		if (this.board[x+1][y] == this.currentPlayer) {
-			this.addChain(x,y,x+1,y);
-			notAlone = true;
+			others.push(x+1,y);
 		}
 		if (this.board[x][y-1] == this.currentPlayer) {
-			this.addChain(x,y,x,y-1);
-			notAlone = true;
+			others.push(x,y-1);
 		}
 		if (this.board[x][y+1] == this.currentPlayer) {
-			this.addChain(x,y,x,y+1);
-			notAlone = true;
+			others.push(x,y+1);
 		}
-		if(notAlone == false) {
-			this.addChain(x,y,-1,-1);
-		}
+
+		this.addChain(x,y,others);
 	}
 
-	this.addChain = function(x,y,otherX,otherY) {
-		// console.log(x+' '+y+' '+otherX+' '+otherY);
-		if (otherX == -1 && otherY == -1) {
+	this.addChain = function(x,y,others) {
+		console.log(others);
+		if (others.length < 1) {
 			//We create a new object that we add to the array that countains all of our chains.
 			this.chains.push({
 				"color" : this.currentPlayer,
+				"numberLinks": 1,
 				1 : {
 					"x" : x,
 					"y" : y
@@ -133,23 +132,36 @@ function GoGame (size) {
 			});
 		}
 		else {
-			for (var i = 0; i < this.chains.length; i++) {
-				for (var key in this.chains[i]) {
-				  if (this.chains[i].hasOwnProperty(key)) {
-				  	// console.log(this.chains[i][key].x + ' ' + otherX);
-				  	// console.log(this.chains[i][key].y + ' ' + otherY);
-				  	if (this.chains[i][key].x == otherX && this.chains[i][key].y == otherY) {
-				  		this.chains[i][key+1] = {
-				  			"x" : x,
-				  			"y" : y
-				  		}
-				  		console.log("success");
-				  	}
-				  }
+			for (k = 0; k < others.length/2; k++) {
+				otherX = others[k*2];
+				otherY = others[(k*2)+1];
+				for (var i = 0; i < this.chains.length; i++) {
+					for (var key in this.chains[i]) {
+						if (this.chains[i].hasOwnProperty(key)) {
+							console.log(this.chains[i][key].x + ' ' + otherX);
+							console.log(this.chains[i][key].y + ' ' + otherY);
+							console.log(this.chains[i][key].numberLinks);
+							if (this.chains[i][key].x == otherX && this.chains[i][key].y == otherY) {
+								this.chains[i][key+1] = {
+									"x" : x,
+									"y" : y
+								}
+								console.log("success");
+							}
+						}
+					}
 				}
 			}
 		}
 	}
+
+	this.checkDoubleChains = function() {
+
+	};
+
+	this.mergeDoubleChains = function() {
+
+	};
 }
 
 var game = new GoGame(9); //we create a new game (new instance of GoGame)
