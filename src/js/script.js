@@ -167,25 +167,21 @@ function GoGame (size) {
 					if (this.chains[i][key].x == x && this.chains[i][key].y == y) {
 						console.log('j\'ajoute à mes instances ' + i);
 						instances.push(i);
-						console.log(instances);
+						console.log(instances);	
 					}	
 				}
 			}
 		}
-		
-		console.log(instances);
 
-		// that = this;
-		// setTimeout(function() { 
-		// 	if (instances.length > 1) {
-		// 		console.log(instances);
-		// 		that.mergeDoubleChains(instances,x,y);
-		// 	}
-		// }, 3000);
+		if (instances.length > 1) {
+			console.log(instances);
+			this.mergeDoubleChains(instances,x,y);
+		}
 
 	};
 
 	this.mergeDoubleChains = function(instances,x,y) {
+		console.log('hey');
 		console.log(instances);
 		var size = instances.length;
 		for (var i = 0; i < size; i++) {
@@ -211,7 +207,7 @@ function GoGame (size) {
 					}
 				}
 			}
-			instances.pop();
+			// instances.pop();
 		}
 	};
 }
