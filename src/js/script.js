@@ -138,11 +138,12 @@ function GoGame (size) {
 				for (var i = 0; i < this.chains.length; i++) {
 					for (var key in this.chains[i]) {
 						if (this.chains[i].hasOwnProperty(key)) {
-							console.log(this.chains[i][key].x + ' ' + otherX);
-							console.log(this.chains[i][key].y + ' ' + otherY);
-							console.log(this.chains[i][key].numberLinks);
+							// console.log(this.chains[i][key].x + ' ' + otherX);
+							// console.log(this.chains[i][key].y + ' ' + otherY);
+							// console.log(this.chains[i][key].numberLinks);
 							if (this.chains[i][key].x == otherX && this.chains[i][key].y == otherY) {
-								this.chains[i][key+1] = {
+								this.chains[i]['numberLinks']++;
+								this.chains[i][this.chains[i]['numberLinks']] = {
 									"x" : x,
 									"y" : y
 								}
@@ -152,15 +153,31 @@ function GoGame (size) {
 					}
 				}
 			}
+			this.checkDoubleChains(x,y);
 		}
 	}
 
-	this.checkDoubleChains = function() {
-
+	this.checkDoubleChains = function(x,y) {
+		var instances = new Array();
+		for (var i = 0; i < this.chains.length; i++) {
+			for (var key in this.chains[i]) {
+				if (this.chains[i].hasOwnProperty(key)) {
+					if (this.chains[i][key].x == x && this.chains[i][key].y == y) {
+						instances.push(i);
+					}	
+				}
+			}
+		}
+		if (instances.length > 1) {
+			this.mergeDoubleChains(instances);
+		}
 	};
 
-	this.mergeDoubleChains = function() {
-
+	this.mergeDoubleChains = function(instances) {
+		for (var i = 0; i < instances.length; i++) {
+			theChain = parseInt(instances[i]);
+			this.chains[theChain]
+		}
 	};
 }
 
