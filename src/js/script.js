@@ -158,25 +158,60 @@ function GoGame (size) {
 	}
 
 	this.checkDoubleChains = function(x,y) {
+
 		var instances = new Array();
+
 		for (var i = 0; i < this.chains.length; i++) {
 			for (var key in this.chains[i]) {
 				if (this.chains[i].hasOwnProperty(key)) {
 					if (this.chains[i][key].x == x && this.chains[i][key].y == y) {
+						console.log('j\'ajoute à mes instances ' + i);
 						instances.push(i);
+						console.log(instances);
 					}	
 				}
 			}
 		}
-		if (instances.length > 1) {
-			this.mergeDoubleChains(instances);
-		}
+		
+		console.log(instances);
+
+		// that = this;
+		// setTimeout(function() { 
+		// 	if (instances.length > 1) {
+		// 		console.log(instances);
+		// 		that.mergeDoubleChains(instances,x,y);
+		// 	}
+		// }, 3000);
+
 	};
 
-	this.mergeDoubleChains = function(instances) {
-		for (var i = 0; i < instances.length; i++) {
-			theChain = parseInt(instances[i]);
-			this.chains[theChain]
+	this.mergeDoubleChains = function(instances,x,y) {
+		console.log(instances);
+		var size = instances.length;
+		for (var i = 0; i < size; i++) {
+			theChain = parseInt(instances[size-1]);
+			thePreviousChain = parseInt(instances[instances.length-2]);
+			console.log(instances);
+			console.log(instances.length);
+			console.log(instances[instances.length-2]);
+			currentLink = this.chains[theChain];
+			previousLink = this.chains[thePreviousChain];
+			for (var key in currentLink) {
+				if (key != 'numberLinks' && key != 'color') {
+					console.log('for key n°' + key);
+					x = parseInt(x);
+					y = parseInt(y);
+					if (currentLink.hasOwnProperty(key)) {
+						console.log(currentLink[key].x + ' = ' + x + ' & ' + currentLink[key].y + ' = ' + y);
+						if (!(currentLink[key].x == x && currentLink[key].y == y)) {
+							console.log(previousLink['numberLinks']);
+							console.log('moved it');
+
+						}	
+					}
+				}
+			}
+			instances.pop();
 		}
 	};
 }
