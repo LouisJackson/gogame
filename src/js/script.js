@@ -4,6 +4,7 @@ function GoGame (size) {
 
 	this.size = size; //the size of the board
 	this.board; //we create a new empty board
+	this.chainBoard; // we create a new empty board that will contain the chains
 	this.currentPlayer = 'black';
 	this.oppositePlayer;
 	this.chains = new Array(); // an array that countains the chains on the board.
@@ -17,6 +18,7 @@ function GoGame (size) {
             	m[i][j] = false;
     	}
     	this.board = m;
+    	this.chainBoard = m; 
     	return m;
 	};
 	//method that create the board
@@ -40,14 +42,18 @@ function GoGame (size) {
 				td.removeClass().addClass(this.currentPlayer);
 				this.board[x][y] = this.currentPlayer;
 				this.checkChain(x,y);
-				// this.checkNeighbors(x,y);
 				this.switchPlayers();
 			}
 
 	}
 	//method that switch color to black or white depends on the current player
 
-	this.checkNeighbors = function(x,y) {
+	this.checkSuscide = function(x,y,cChain) {
+
+		var currentX, currentY, exit = 0;
+
+		console.log( x + ' ' + y + ' ' + cChain);
+
 		if (this.currentPlayer == 'black') {
 			this.oppositePlayer = 'white';
 		}
@@ -56,34 +62,43 @@ function GoGame (size) {
 		}
 		x = parseInt(x);
 		y = parseInt(y);
-		var opponent = false;
-		console.log(x+' '+y);
-		if (x-1 >= 0) {
-			if (this.board[x-1][y] == this.oppositePlayer) {
-				opponent = x-1+' '+y;
+
+		var currentChain = this.chains[cChain];
+
+		for (var key in currentChain) {
+			if (key != 'numberLinks' && key != 'color') {
+				if (currentChain.hasOwnProperty(key)) {
+					currentX = currentChain[key].x;
+					currentY = currentChain[key].y;
+					if (this.board[currentX-1] != undefined) {
+						if (this.board[currentX-1][currentY] == false) {
+							exit++;
+						}
+					}
+
+					if (this.board[currentX+1] != undefined) {
+						if (this.board[currentX+1][currentY] == false) {
+							exit++;
+						}
+					}
+
+					if (this.board[currentX][currentY-1] != undefined) {
+						if (this.board[currentX][currentY-1] == false) {
+							exit++;
+						}
+					}
+					
+					if (this.board[currentX][currentY+1] != undefined) {
+						if (this.board[currentX][currentY+1] == false) {
+							exit++;
+						}
+					}
+				}
 			}
 		}
-		console.log(x+1);
-		console.log(this.size);
-		console.log(this.oppositePlayer);
-		console.log(this.board[x+1][y]);
-		if (x+1 < this.size) {
-			if (this.board[x+1][y] == this.oppositePlayer) {
-				opponent = x+1+' '+y;
-			}
-		}
 
-		if (this.board[x][y-1] == this.oppositePlayer) {
-				opponent = x+' '+y-1;
-		}
+		console.log('exit = ' + exit);
 
-		if (this.board[x+1][y+1] == this.oppositePlayer) {
-				opponent = x+' '+y+1;
-		}
-
-		if (opponent) {
-			console.log('There is an opponent which position is'+ opponent);
-		}
 	}
 
 	this.switchPlayers = function() {
@@ -102,24 +117,35 @@ function GoGame (size) {
 
 		var others = new Array();
 
-		if (this.board[x-1][y] == this.currentPlayer) {
-			others.push(x-1,y);
+		if (this.board[x-1] != undefined) {
+			if (this.board[x-1][y] == this.currentPlayer) {
+				others.push(x-1,y);
+			}
 		}
-		if (this.board[x+1][y] == this.currentPlayer) {
-			others.push(x+1,y);
+
+		if (this.board[x+1] != undefined) {
+			if (this.board[x+1][y] == this.currentPlayer) {
+				others.push(x+1,y);
+			}
 		}
-		if (this.board[x][y-1] == this.currentPlayer) {
-			others.push(x,y-1);
+
+		if (this.board[x][y-1] != undefined) {
+			if (this.board[x][y-1] == this.currentPlayer) {
+				others.push(x,y-1);
+			}
 		}
-		if (this.board[x][y+1] == this.currentPlayer) {
-			others.push(x,y+1);
+		
+		if (this.board[x][y+1] != undefined) {
+			if (this.board[x][y+1] == this.currentPlayer) {
+				others.push(x,y+1);
+			}
 		}
 
 		this.addChain(x,y,others);
 	}
 
 	this.addChain = function(x,y,others) {
-		console.log(others);
+		var instances = new Array();
 		if (others.length < 1) {
 			//We create a new object that we add to the array that countains all of our chains.
 			this.chains.push({
@@ -130,6 +156,8 @@ function GoGame (size) {
 					"y" : y
 				}
 			});
+			instances.push(this.chains.length-1);
+			this.chainBoard[x][y] = this.chains.length-1;
 		}
 		else {
 			for (k = 0; k < others.length/2; k++) {
@@ -138,76 +166,66 @@ function GoGame (size) {
 				for (var i = 0; i < this.chains.length; i++) {
 					for (var key in this.chains[i]) {
 						if (this.chains[i].hasOwnProperty(key)) {
-							// console.log(this.chains[i][key].x + ' ' + otherX);
-							// console.log(this.chains[i][key].y + ' ' + otherY);
-							// console.log(this.chains[i][key].numberLinks);
 							if (this.chains[i][key].x == otherX && this.chains[i][key].y == otherY) {
 								this.chains[i]['numberLinks']++;
 								this.chains[i][this.chains[i]['numberLinks']] = {
 									"x" : x,
 									"y" : y
-								}
-								console.log("success");
+								};
+								instances.push(i);
 							}
 						}
 					}
 				}
 			}
-			this.checkDoubleChains(x,y);
+			this.chainBoard[x][y] = instances[0];
+			this.checkDoubleChains(x,y,instances);
 		}
+		this.checkSuscide(x,y,instances[0]);
 	}
 
-	this.checkDoubleChains = function(x,y) {
+	this.checkDoubleChains = function(x,y,instances) {
 
-		var instances = new Array();
+		//Check if it's the same chains 
 
-		for (var i = 0; i < this.chains.length; i++) {
-			for (var key in this.chains[i]) {
-				if (this.chains[i].hasOwnProperty(key)) {
-					if (this.chains[i][key].x == x && this.chains[i][key].y == y) {
-						console.log('j\'ajoute à mes instances ' + i);
-						instances.push(i);
-						console.log(instances);	
-					}	
-				}
+		for (var u = 0; u < (instances.length-1); u++) {
+			if (instances[u] == instances[u+1]) {
+				instances.splice(u+1,1);
+				var row = this.chains[instances[u]].numberLinks;
+				delete this.chains[instances[u]][row];
+				this.chains[instances[u]].numberLinks = row-1;
 			}
-		}
+		};
 
 		if (instances.length > 1) {
-			console.log(instances);
 			this.mergeDoubleChains(instances,x,y);
 		}
 
 	};
 
 	this.mergeDoubleChains = function(instances,x,y) {
-		console.log('hey');
-		console.log(instances);
-		var size = instances.length;
-		for (var i = 0; i < size; i++) {
-			theChain = parseInt(instances[size-1]);
-			thePreviousChain = parseInt(instances[instances.length-2]);
-			console.log(instances);
-			console.log(instances.length);
-			console.log(instances[instances.length-2]);
+		var mergedChains = instances;
+		var size = mergedChains.length;
+		for (var i = 0; i < (size-1); i++) {
+			theChain = parseInt(mergedChains[size-(i+1)]);
+			thePreviousChain = parseInt(mergedChains[mergedChains.length-(i+2)]);
 			currentLink = this.chains[theChain];
 			previousLink = this.chains[thePreviousChain];
 			for (var key in currentLink) {
 				if (key != 'numberLinks' && key != 'color') {
-					console.log('for key n°' + key);
-					x = parseInt(x);
-					y = parseInt(y);
 					if (currentLink.hasOwnProperty(key)) {
-						console.log(currentLink[key].x + ' = ' + x + ' & ' + currentLink[key].y + ' = ' + y);
 						if (!(currentLink[key].x == x && currentLink[key].y == y)) {
-							console.log(previousLink['numberLinks']);
-							console.log('moved it');
-
+							previousLink['numberLinks']++;
+							previousLink[previousLink['numberLinks']] = {
+								"x" : currentLink[key].x,
+								"y" : currentLink[key].y
+							}
+							this.chainBoard[currentLink[key].x][currentLink[key].y] == mergedChains[0];
 						}	
 					}
 				}
 			}
-			// instances.pop();
+			this.chains.splice(theChain,1);
 		}
 	};
 }
