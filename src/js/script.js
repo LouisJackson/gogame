@@ -1,3 +1,11 @@
+/*TO DO LIST
+[] Faire en sorte d'interdire le joueur à se suicider s'il est surrounded
+[] Donner la possibilité de passer son tour
+[] Mettre à jour le fichier 'board' en cas de suppression
+[] Gérer les captures des pierres avec les rebords
+[] Gérer le jeu en réseau
+[] Gérer le jeu avec une IA.
+*/
 // New class to create a Go Game
 function GoGame (size) {
 
@@ -51,8 +59,19 @@ function GoGame (size) {
 
 	}
 	this.removeChain = function(chain) {
-		var td = $('td[dataX="'+x+'"][dataY="'+y+'"]');
+		var currentX, currentY;
+		for (var key in this.chains[chain]) {
+				if (key != 'numberLinks' && key != 'color') {
+					if (this.chains[chain].hasOwnProperty(key)) {
+						currentX = this.chains[chain][key].x;	
+						currentY = this.chains[chain][key].y;
+						console.log(currentX +' & '+ currentY);
+						var td = $('td[dataX="'+currentX+'"][dataY="'+currentY+'"]');
 		td.removeClass();
+					}
+				}
+			}
+
 	}
 	//method that switch color to black or white depends on the current player
 
