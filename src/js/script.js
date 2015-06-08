@@ -50,10 +50,13 @@ function GoGame (size) {
 			}
 
 	}
+	this.removeChain = function(chain) {
+		var td = $('td[dataX="'+x+'"][dataY="'+y+'"]');
+		td.removeClass();
+	}
 	//method that switch color to black or white depends on the current player
 
 	this.checkSuscide = function(cChain) {
-
 		var currentX, currentY, exit = 0;
 
 		if (this.currentPlayer == 'black') {
@@ -96,7 +99,7 @@ function GoGame (size) {
 				}
 			}
 		}
-
+		return exit;
 	}
 
 	this.checkOpponents = function(x,y) {
@@ -138,8 +141,18 @@ function GoGame (size) {
 		}
 
 		console.log(opponents);
-
-
+		for(var i=0; i<(opponents.length/2); i++)
+		{
+			console.log(this.chainBoard[opponents[i*2]][opponents[i*2+1]]);
+			var chainNumber = this.chainBoard[opponents[i*2]][opponents[i*2+1]]; //Get the number of the chains.
+			var libertyNumber = this.checkSuscide(chainNumber);
+			console.log(libertyNumber);
+			if(libertyNumber == 0)
+			{
+				this.removeChain(chainNumber);
+				this.chains.splice(chainNumber, 1);
+			}
+		}
 
 	}
 
