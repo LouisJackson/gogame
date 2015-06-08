@@ -139,6 +139,8 @@ function GoGame (size) {
 
 		console.log(opponents);
 
+
+
 	}
 
 	this.switchPlayers = function() {
@@ -262,6 +264,7 @@ function GoGame (size) {
 								"x" : currentLink[key].x,
 								"y" : currentLink[key].y
 							};
+							//update chain value in chainboard
 							this.chainBoard[currentLink[key].x][currentLink[key].y] = mergedChains[0];
 							console.log(this.chainBoard[currentLink[key].x][currentLink[key].y]);
 							console.log(mergedChains[0]);
