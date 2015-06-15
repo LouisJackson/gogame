@@ -1,4 +1,5 @@
 /*TO DO LIST
+
 [] Faire en sorte d'interdire le joueur à se suicider s'il est surrounded
 [] Donner la possibilité de passer son tour
 [] Mettre à jour le fichier 'board' en cas de suppression
@@ -73,6 +74,20 @@ function GoGame (size) {
 			}
 
 	}
+
+	this.updateChainboard = function(chain) {
+		for (var i = 0; i < this.chainBoard.length; i++) {
+			for (var j = 0; j < this.chainBoard[i].length; j++) {
+				console.log(this.chainBoard[i][j]);
+				console.log(chain);
+				if (this.chainBoard[i][j] > chain) {
+					this.chainBoard[i][j]--;
+				}
+			};
+		};
+	};
+
+
 	//method that switch color to black or white depends on the current player
 
 	this.checkSuscide = function(cChain) {
@@ -170,6 +185,7 @@ function GoGame (size) {
 			{
 				this.removeChain(chainNumber);
 				this.chains.splice(chainNumber, 1);
+				this.updateChainboard(chainNumber);
 			}
 		}
 
@@ -298,13 +314,14 @@ function GoGame (size) {
 							};
 							//update chain value in chainboard
 							this.chainBoard[currentLink[key].x][currentLink[key].y] = mergedChains[0];
-							console.log(this.chainBoard[currentLink[key].x][currentLink[key].y]);
-							console.log(mergedChains[0]);
 						}	
 					}
 				}
 			}
 			this.chains.splice(theChain,1);
+
+			//ICI ON MET A JOUR TOUTES LES CHAINES SITUEES APRES LA CHAINE COURANTE EN ENLEVANT -1
+			this.updateChainboard(theChain);
 		}
 	};
 }
