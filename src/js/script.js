@@ -26,6 +26,7 @@ function GoGame (size) {
 	this.oldChainBoard = new Array();
 	this.blackLastTour = new Array();
 	this.whiteLastTour = new Array();
+	this.passTour = 0;
 
 
 	this.create = function() {
@@ -59,6 +60,7 @@ function GoGame (size) {
 
 	this.switchColor = function(x,y) {
 		this.savePreviousGame();
+		this.passTour = 0;
 		var td = $('td[dataX="'+x+'"][dataY="'+y+'"]');
 		if(!td.hasClass('black') && !td.hasClass('white')) {
 			td.removeClass().addClass(this.currentPlayer);
@@ -418,5 +420,9 @@ $('td').on('click',function(){
 
 // on click on the button, the player pass his tour
 $('button').on('click',function(){
+	game.passTour++;
+	if (game.passTour == 2) {
+		alert('END OF GAME');
+	}
 	game.switchPlayers();
 });
