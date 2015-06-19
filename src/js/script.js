@@ -4,7 +4,7 @@
 [X] Donner la possibilité de passer son tour
 [X] Mettre à jour le fichier 'board' en cas de suppression
 [X] Ajouter les pions capturer
-[ ] Empêcher de jouer deux fois dans la même case d'affilé
+[ ] Empêcher Répétition (http://jeudego.org/_php/regleGo.php?chap=7)
 [ ] Gérer le jeu en réseau
 [ ] Gérer le jeu avec une IA.
 */
@@ -24,6 +24,8 @@ function GoGame (size) {
 	this.oldChains = new Array();
 	this.oldBoard = new Array();
 	this.oldChainBoard = new Array();
+	this.blackLastTour = new Array();
+	this.whiteLastTour = new Array();
 
 
 	this.create = function() {
@@ -65,15 +67,24 @@ function GoGame (size) {
 			this.checkChain(x,y);
 
 			console.log(this.chainToCheckSuscide);
-			this.checkOpponents(x,y);
 			var canPlay = this.checkSuscide(this.chainToCheckSuscide);
+
+			if (canPlay == 0) {
+				var chainRemoved = this.checkOpponents(x,y,canPlay);
+			}
+			
+			if (chainRemoved) {
+				canPlay = 1;
+			}
+
 			if (canPlay == 0) {
 				alert("it's a sucide");
 				this.putPreviousGame();
 				td.removeClass();
 			}
+
 			else {
-				this.checkOpponents(x,y);
+				this.checkOpponents(x,y,canPlay);
 				this.switchPlayers();
 			}
 		}
@@ -159,7 +170,7 @@ function GoGame (size) {
 		return exit;
 	}
 
-	this.checkOpponents = function(x,y) {
+	this.checkOpponents = function(x,y,canPlay) {
 
 		if (this.currentPlayer == 'black') {
 			this.oppositePlayer = 'white';
@@ -172,6 +183,8 @@ function GoGame (size) {
 		y = parseInt(y);
 
 		var opponents = new Array();
+
+		var chainRemoved = false;
 
 		if (this.board[x-1] != undefined) {
 			if (this.board[x-1][y] == this.oppositePlayer) {
@@ -201,14 +214,17 @@ function GoGame (size) {
 			var chainNumber = this.chainBoard[opponents[i*2]][opponents[i*2+1]]; //Get the number of the chains.
 			var libertyNumber = this.checkSuscide(chainNumber);
 			console.log(libertyNumber);
-			if(libertyNumber == 0)
-			{
-				this.removeChain(chainNumber);
-				this.chains.splice(chainNumber, 1);
-				this.updateChainboard(chainNumber);
+			if(libertyNumber == 0) {
+				chainRemoved = true;
+				if (canPlay != 0) {
+					this.removeChain(chainNumber);
+					this.chains.splice(chainNumber, 1);
+					this.updateChainboard(chainNumber);
+				}
 			}
 		}
 
+		return chainRemoved;
 	}
 
 	this.switchPlayers = function() {
