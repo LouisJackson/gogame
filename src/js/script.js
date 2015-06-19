@@ -1,11 +1,12 @@
 /*TO DO LIST
 
-[] Faire en sorte d'interdire le joueur à se suicider s'il est surrounded
-[] Donner la possibilité de passer son tour
-[] Mettre à jour le fichier 'board' en cas de suppression
-[] Gérer les captures des pierres avec les rebords
-[] Gérer le jeu en réseau
-[] Gérer le jeu avec une IA.
+[X] Faire en sorte d'interdire le joueur à se suicider s'il est surrounded
+[X] Donner la possibilité de passer son tour
+[X] Mettre à jour le fichier 'board' en cas de suppression
+[X] Ajouter les pions capturer
+[ ] Empêcher de jouer deux fois dans la même case d'affilé
+[ ] Gérer le jeu en réseau
+[ ] Gérer le jeu avec une IA.
 */
 // New class to create a Go Game
 function GoGame (size) {
@@ -17,6 +18,12 @@ function GoGame (size) {
 	this.currentPlayer = 'black';
 	this.oppositePlayer;
 	this.chains = new Array(); // an array that countains the chains on the board.
+	this.whiteCaptures = new Array(); // the rocks captured by the white
+	this.blackCaptures = new Array(); // the rocks captured by the black
+	this.chainToCheckSuscide = 0;
+	this.oldChains = new Array();
+	this.oldBoard = new Array();
+	this.oldChainBoard = new Array();
 
 
 	this.create = function() {
@@ -49,16 +56,30 @@ function GoGame (size) {
 	//method that display the board
 
 	this.switchColor = function(x,y) {
-			var td = $('td[dataX="'+x+'"][dataY="'+y+'"]');
-			if(!td.hasClass('black') && !td.hasClass('white')) {
-				td.removeClass().addClass(this.currentPlayer);
-				this.board[x][y] = this.currentPlayer;
-				this.checkChain(x,y);
+		this.savePreviousGame();
+		var td = $('td[dataX="'+x+'"][dataY="'+y+'"]');
+		if(!td.hasClass('black') && !td.hasClass('white')) {
+			td.removeClass().addClass(this.currentPlayer);
+
+			this.board[x][y] = this.currentPlayer;
+			this.checkChain(x,y);
+
+			console.log(this.chainToCheckSuscide);
+			this.checkOpponents(x,y);
+			var canPlay = this.checkSuscide(this.chainToCheckSuscide);
+			if (canPlay == 0) {
+				alert("it's a sucide");
+				this.putPreviousGame();
+				td.removeClass();
+			}
+			else {
 				this.checkOpponents(x,y);
 				this.switchPlayers();
 			}
+		}
 
 	}
+
 	this.removeChain = function(chain) {
 		var currentX, currentY;
 		for (var key in this.chains[chain]) {
@@ -66,9 +87,11 @@ function GoGame (size) {
 					if (this.chains[chain].hasOwnProperty(key)) {
 						currentX = this.chains[chain][key].x;	
 						currentY = this.chains[chain][key].y;
-						console.log(currentX +' & '+ currentY);
+						this.addCaptures(currentX,currentY);
+						this.board[currentX][currentY] = false;
+						this.chainBoard[currentX][currentY] = false;
 						var td = $('td[dataX="'+currentX+'"][dataY="'+currentY+'"]');
-		td.removeClass();
+						td.removeClass();
 					}
 				}
 			}
@@ -173,11 +196,8 @@ function GoGame (size) {
 				opponents.push(x,y+1);
 			}
 		}
-
-		console.log(opponents);
 		for(var i=0; i<(opponents.length/2); i++)
 		{
-			console.log(this.chainBoard[opponents[i*2]][opponents[i*2+1]]);
 			var chainNumber = this.chainBoard[opponents[i*2]][opponents[i*2+1]]; //Get the number of the chains.
 			var libertyNumber = this.checkSuscide(chainNumber);
 			console.log(libertyNumber);
@@ -250,6 +270,7 @@ function GoGame (size) {
 			});
 			instances.push(this.chains.length-1);
 			this.chainBoard[x][y] = this.chains.length-1;
+			this.chainToCheckSuscide = this.chains.length-1;
 		}
 		else {
 			for (k = 0; k < others.length/2; k++) {
@@ -273,7 +294,7 @@ function GoGame (size) {
 			this.chainBoard[x][y] = instances[0];
 			this.checkDoubleChains(x,y,instances);
 		}
-		this.checkSuscide(instances[0]);
+		//this.checkSuscide(instances[0]);
 	}
 
 	this.checkDoubleChains = function(x,y,instances) {
@@ -288,6 +309,8 @@ function GoGame (size) {
 				this.chains[instances[u]].numberLinks = row-1;
 			}
 		};
+
+		this.chainToCheckSuscide = instances[0];
 
 		if (instances.length > 1) {
 			this.mergeDoubleChains(instances,x,y);
@@ -322,11 +345,48 @@ function GoGame (size) {
 
 			//ICI ON MET A JOUR TOUTES LES CHAINES SITUEES APRES LA CHAINE COURANTE EN ENLEVANT -1
 			this.updateChainboard(theChain);
+
 		}
 	};
+
+	this.addCaptures = function(x,y) {
+		var captures;
+		if (this.currentPlayer == "white") {
+			captures = this.whiteCaptures;
+		}
+		else {
+			captures = this.blackCaptures;
+		}
+		captures.push({
+			"x": x,
+			"y": y
+		});
+	};
+
+	this.savePreviousGame = function() {
+
+		this.oldChains = JSON.parse(JSON.stringify(this.chains));
+
+		for (var i = 0; i < this.board.length; i++)
+			this.oldBoard[i] = this.board[i].slice();
+		for (var i = 0; i < this.chainBoard.length; i++)
+			this.oldChainBoard[i] = this.chainBoard[i].slice();
+	}
+
+	this.putPreviousGame = function() {
+
+		this.chains = JSON.parse(JSON.stringify(this.oldChains));
+		// for (var i = 0; i < this.oldChains.length; i++)
+		// 	this.chains[i] = this.oldChains[i].slice();
+		for (var i = 0; i < this.oldBoard.length; i++)
+			this.board[i] = this.oldBoard[i].slice();
+		for (var i = 0; i < this.oldChainBoard.length; i++)
+			this.chainBoard[i] = this.oldChainBoard[i].slice();
+	}
+
 }
 
-var game = new GoGame(9); //we create a new game (new instance of GoGame)
+var game = new GoGame(7); //we create a new game (new instance of GoGame)
 
 var board = game.create(); //we create the board
 game.render(board); //we display the board
@@ -337,4 +397,10 @@ $('td').on('click',function(){
 	var y = $(this).attr('dataY');
 	game.switchColor(x,y); // ... by calling the method of the object
 	
+});
+
+
+// on click on the button, the player pass his tour
+$('button').on('click',function(){
+	game.switchPlayers();
 });
