@@ -83,12 +83,18 @@ function GoGame (size) {
 				alert("it's a sucide");
 				this.putPreviousGame();
 				td.removeClass();
+				return false;
 			}
 
 			else {
 				this.checkOpponents(x,y,canPlay);
 				this.switchPlayers();
+				return [this.board,this.chainBoard,this.chains];
 			}
+		}
+
+		else {
+			return false;
 		}
 
 	}
@@ -430,12 +436,13 @@ game.render(board); //we display the board
 $('td').on('click',function(){
 	var x = $(this).attr('dataX');
 	var y = $(this).attr('dataY');
-	game.switchColor(x,y); // ... by calling the method of the object
-	
+	var infos = game.switchColor(x,y); // ... by calling the method of the object
+	console.log(infos);
 });
 
 
 // on click on the button, the player pass his tour
 $('button').on('click',function(){
 	game.passTurn();
+	changeTurn(game.currentPlayer);
 });
