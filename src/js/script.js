@@ -402,6 +402,23 @@ function GoGame (size) {
 			this.chainBoard[i] = this.oldChainBoard[i].slice();
 	}
 
+	this.passTurn = function() {
+		this.passTour++;
+		if (this.passTour == 2) {
+			this.endGame();
+		}
+		this.switchPlayers();
+		this.addCaptures(-1,-1);
+	}
+
+	this.endGame = function() {
+		// alert(this.currentPlayer);
+
+		if (this.currentPlayer == 'black') {
+			this.addCaptures(-1,-1);
+		}
+	}
+
 }
 
 var game = new GoGame(7); //we create a new game (new instance of GoGame)
@@ -420,9 +437,5 @@ $('td').on('click',function(){
 
 // on click on the button, the player pass his tour
 $('button').on('click',function(){
-	game.passTour++;
-	if (game.passTour == 2) {
-		alert('END OF GAME');
-	}
-	game.switchPlayers();
+	game.passTurn();
 });
