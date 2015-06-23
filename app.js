@@ -1,3 +1,6 @@
+//socket.on('')
+//io.emit('')
+
 var express = require('express');
 var app = express();
 var mongojs = require("mongojs");
@@ -23,9 +26,7 @@ app.get('/room/:id', function(req, res){
 	res.sendFile(__dirname +  '/game.html');
 });
 
-
 var home_io = io.of('/');
-var room_io = io.of('/room/:id');
 
 
 home_io.on('connection', function(socket){
@@ -43,9 +44,11 @@ home_io.on('connection', function(socket){
 	});
 });
 
+var room_io = io.of('/room');
+
 room_io.on('connection', function(socket){
 	console.log('user connected to room');
-	room_io.emit('askUrl', 'lol');
+	room_io.emit('askUrl');
 });
 
 // app.get('/room', function(req, res) {

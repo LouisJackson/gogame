@@ -1,3 +1,6 @@
+//socket.emit();
+//socket.on();
+
 var socket = io();
 
 function create_room(size,colorWanted) {
@@ -21,11 +24,11 @@ function create_room(size,colorWanted) {
 	document.location.href = '/room/'+id;
 }
 
-var room_socket = io('/room/:id');
+// var room_socket = io('/room/:id');
 
 
-room_socket.on('askUrl', function(lol) {
+room_io.on('askUrl', function() {
 	var url = document.location.href.substring( document.location.href.lastIndexOf( '/' ) );
 	alert(url);
-	room_socket.emit('giveUrl', url);
+	socket.emit('giveUrl', url);
 });
