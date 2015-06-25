@@ -46,15 +46,30 @@ function GoGame (size) {
 	//method that create the board
 
 	this.render = function(board) {
-		$('#table').append('<table><tbody>');
-		for (var i = 0; i < board.length; i++) {
-			$('#table').append('<tr>');
-			for(var j=0; j< board.length; j++) {
-				$('#table').append('<td dataX="'+i+'" dataY="'+j+'"></td>');
+		var i, j, content;
+		content = "<table width='800' height='800'>";
+
+		for (i=0; i< board.length; i++) {
+			content = content + "<tr>";
+			for (j=0; j < board.length; j++) {
+				content = content + "<td dataX='"+i+"' dataY='"+j+"'><span></span></td>";
 			}
-			$('#table').append('</tr>');
+			content = content + "</tr>";
 		}
-		$('#table').append('</tbody></table>');
+
+		content = content + "</table>";
+
+		document.getElementById("table").innerHTML = content;
+
+		// $('#table').append('<table width="800" height="800">');
+		// for (var i = 0; i < board.length; i++) {
+		// 	$('#table').append('<tr>');
+		// 	for(var j=0; j< board.length; j++) {
+		// 		$('#table').append('<td dataX="'+i+'" dataY="'+j+'" class="white"><span></span></td>');
+		// 	}
+		// 	// $('#table').append('</tr>');
+		// }
+		// $('#table').append('</table>');
 	};
 	//method that display the board
 
@@ -80,9 +95,16 @@ function GoGame (size) {
 			}
 
 			if (canPlay == 0) {
-				alert("it's a sucide");
+				td.append('<div id="cross"></div>');
 				this.putPreviousGame();
 				td.removeClass();
+				setTimeout(
+				function() 
+				{
+					td.find('#cross').fadeOut(400,function(){
+						td.find('#cross').remove();
+					});
+				}, 2000);
 			}
 
 			else {
@@ -334,6 +356,8 @@ function GoGame (size) {
 			this.mergeDoubleChains(instances,x,y);
 		}
 
+		console.log(instances);
+
 	};
 
 	this.mergeDoubleChains = function(instances,x,y) {
@@ -412,7 +436,7 @@ function GoGame (size) {
 	}
 
 	this.endGame = function() {
-		// alert(this.currentPlayer);
+		alert(this.currentPlayer);
 
 		if (this.currentPlayer == 'black') {
 			this.addCaptures(-1,-1);
@@ -421,7 +445,7 @@ function GoGame (size) {
 
 }
 
-var game = new GoGame(7); //we create a new game (new instance of GoGame)
+var game = new GoGame(9); //we create a new game (new instance of GoGame)
 
 var board = game.create(); //we create the board
 game.render(board); //we display the board
