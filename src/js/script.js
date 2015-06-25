@@ -98,6 +98,7 @@ function GoGame (size) {
 				td.append('<div id="cross"></div>');
 				this.putPreviousGame();
 				td.removeClass();
+<<<<<<< HEAD
 				setTimeout(
 				function() 
 				{
@@ -105,12 +106,25 @@ function GoGame (size) {
 						td.find('#cross').remove();
 					});
 				}, 2000);
+=======
+				return false;
+>>>>>>> live_socket
 			}
 
 			else {
 				this.checkOpponents(x,y,canPlay);
 				this.switchPlayers();
+				var theReturned = {
+					"board": this.board,
+					"chainBoard": this.chainBoard,
+					"chains": this.chains
+				};
+				return theReturned;
 			}
+		}
+
+		else {
+			return false;
 		}
 
 	}
@@ -443,6 +457,23 @@ function GoGame (size) {
 		}
 	}
 
+	this.updateGame = function(data) {
+		this.board = data.board;
+		this.chainBoard = data.chainBoard;
+		this.chain = data.chain;
+		for (var i = 0; i < this.board.length; i++) {
+			for (var j = 0; j < this.board[i].length; j++) {
+				var td = $('td[dataX="'+i+'"][dataY="'+j+'"]');
+				if (this.board[i][j] == 'black') {
+					td.addClass('black');
+				}
+				else if (this.board[i][j] == 'white') {
+					td.addClass('white');
+				}
+			};
+		};
+	}
+
 }
 
 var game = new GoGame(9); //we create a new game (new instance of GoGame)
@@ -450,16 +481,28 @@ var game = new GoGame(9); //we create a new game (new instance of GoGame)
 var board = game.create(); //we create the board
 game.render(board); //we display the board
 
+
+var initInfos = {
+					"board": game.board,
+					"chainBoard": game.chainBoard,
+					"chains": game.chains
+				};
+
+initGame(initInfos);
+
 //on click on the td, we switch color....
 $('td').on('click',function(){
 	var x = $(this).attr('dataX');
 	var y = $(this).attr('dataY');
-	game.switchColor(x,y); // ... by calling the method of the object
-	
+	var infos = game.switchColor(x,y); // ... by calling the method of the object
+	if (infos != false) {
+		changeTurn(infos);
+	}
 });
 
 
 // on click on the button, the player pass his tour
 $('button').on('click',function(){
 	game.passTurn();
+	// changeTurn(game.currentPlayer);
 });
